@@ -268,7 +268,7 @@ def setup(new_connection=True, new_channel=True, queue=False, exchange=False,
             self.virtual_host_name = name
             if new_connection:
                 self.connection = Connection(HOST, USERNAME, PASSWORD,
-                                             timeout=1)
+                                             heartbeat=1)
                 if new_channel:
                     self.channel = self.connection.channel()
             try:
@@ -302,7 +302,7 @@ def clean(names, queue=False, exchange=False):
     """
     if not queue and not exchange:
         return
-    api = ManagementApi(HTTP_URL, USERNAME, PASSWORD, timeout=10)
+    api = ManagementApi(HTTP_URL, USERNAME, PASSWORD, timeout=1)
     if queue:
         _delete_queues(api, names)
     if exchange:

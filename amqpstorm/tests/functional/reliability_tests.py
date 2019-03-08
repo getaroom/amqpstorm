@@ -21,7 +21,8 @@ class ReliabilityFunctionalTests(TestFunctionalFramework):
     def test_functional_open_new_connection_loop(self):
         for _ in range(25):
             self.connection = self.connection = Connection(HOST, USERNAME,
-                                                           PASSWORD)
+                                                           PASSWORD,
+                                                           heartbeat=1)
             self.channel = self.connection.channel()
 
             # Make sure that it's a new channel.
@@ -45,7 +46,8 @@ class ReliabilityFunctionalTests(TestFunctionalFramework):
 
     @setup(new_connection=False, queue=True)
     def test_functional_open_close_connection_loop(self):
-        self.connection = Connection(HOST, USERNAME, PASSWORD, lazy=True)
+        self.connection = Connection(HOST, USERNAME, PASSWORD, lazy=True,
+                                     heartbeat=1)
         for _ in range(25):
             self.connection.open()
             channel = self.connection.channel()
@@ -93,7 +95,8 @@ class ReliabilityFunctionalTests(TestFunctionalFramework):
     @setup(new_connection=False, queue=True)
     def test_functional_open_close_channel_loop(self):
         self.connection = self.connection = Connection(HOST, USERNAME,
-                                                       PASSWORD)
+                                                       PASSWORD,
+                                                       heartbeat=1)
         for _ in range(25):
             channel = self.connection.channel()
 
@@ -113,7 +116,8 @@ class ReliabilityFunctionalTests(TestFunctionalFramework):
     @setup(new_connection=False, queue=True)
     def test_functional_open_multiple_channels(self):
         self.connection = self.connection = Connection(HOST, USERNAME,
-                                                       PASSWORD, lazy=True)
+                                                       PASSWORD,
+                                                       heartbeat=1, lazy=True)
 
         for _ in range(5):
             channels = []
@@ -138,7 +142,8 @@ class ReliabilityFunctionalTests(TestFunctionalFramework):
         """
         for _ in range(5):
             self.connection = self.connection = Connection(HOST, USERNAME,
-                                                           PASSWORD)
+                                                           PASSWORD,
+                                                           heartbeat=1)
             start_time = time.time()
             self.connection.close()
             self.assertLess(time.time() - start_time, 3)
@@ -165,8 +170,8 @@ class ReliabilityFunctionalTests(TestFunctionalFramework):
             imp.reload(compatibility)
 
 
-class PublishAndConsume5kTest(TestFunctionalFramework):
-    messages_to_send = 5000
+class PublishAndConsume20kTest(TestFunctionalFramework):
+    messages_to_send = 20000
     messages_consumed = 0
     lock = threading.Lock()
 
@@ -194,21 +199,21 @@ class PublishAndConsume5kTest(TestFunctionalFramework):
             self.messages_consumed += 1
 
     @setup(queue=True)
-    def test_functional_publish_and_consume_5k_messages(self):
+    def test_functional_publish_and_consume_20k_messages(self):
         self.channel.queue.declare(self.queue_name)
 
         publish_thread = threading.Thread(target=self.publish_messages, )
         publish_thread.daemon = True
         publish_thread.start()
 
-        for _ in range(4):
+        for _ in range(8):
             consumer_thread = threading.Thread(target=self.consume_messages, )
             consumer_thread.daemon = True
             consumer_thread.start()
 
         start_time = time.time()
         while self.messages_consumed != self.messages_to_send:
-            if time.time() - start_time >= 60:
+            if time.time() - start_time >= 600:
                 break
             time.sleep(0.1)
 
@@ -221,7 +226,7 @@ class PublishAndConsume5kTest(TestFunctionalFramework):
 
 
 class PublishAndConsumeUntilEmptyTest(TestFunctionalFramework):
-    messages_to_send = 1000
+    messages_to_send = 20000
 
     def configure(self):
         self.disable_logging_validation()
