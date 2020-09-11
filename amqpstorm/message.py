@@ -8,7 +8,6 @@ from amqpstorm.base import BaseMessage
 from amqpstorm.compatibility import try_utf8_decode
 from amqpstorm.exception import AMQPMessageError
 
-
 class Message(BaseMessage):
     """RabbitMQ Message.
 
@@ -326,6 +325,54 @@ class Message(BaseMessage):
         :return:
         """
         self._update_properties('reply_to', value)
+
+    @property
+    def message_type(self):
+        """Get AMQP Message attribute: message_type.
+
+        :return:
+        """
+        return self.properties.get('message_type')
+
+    @message_type.setter
+    def message_type(self, value):
+        """Set AMQP Message attribute: message_type.
+
+        :return:
+        """
+        self._update_properties('message_type', value)
+
+    @property
+    def expiration(self):
+        """Get AMQP Message attribute: expiration.
+
+        :return:
+        """
+        return self.properties.get('expiration')
+
+    @expiration.setter
+    def expiration(self, value):
+        """Set AMQP Message attribute: expiration.
+
+        :return:
+        """
+        self._update_properties('expiration', value)
+
+    @property
+    def user_id(self):
+        """Get AMQP Message attribute: user_id.
+
+        :return:
+        """
+        return self.properties.get('user_id')
+
+    @user_id.setter
+    def user_id(self, value):
+        """Set AMQP Message attribute: user_id.
+
+        :return:
+        """
+        self._update_properties('user_id', value)
 
     @property
     def redelivered(self):
